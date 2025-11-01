@@ -69,14 +69,14 @@ typedef struct
     Matrix *algorithm;
 } ThreadData;
 
-void threaded_convolute(ThreadData *argdata)
+void* threaded_convolute(void *argdata)
 {
     ThreadData *data = (ThreadData *)argdata;
     Image *srcImage = data->srcImage;
     Image *destImage = data->destImage;
     Matrix *algorithm = data->algorithm;
     int row, pix, bit;
-    for (row = argdata->start_row; row < argdata->end_row; row++)
+    for (row = data->start_row; row < data->end_row; row++)
     {
         for (pix = 0; pix < srcImage->width; pix++)
         {
@@ -88,7 +88,6 @@ void threaded_convolute(ThreadData *argdata)
     }
     return NULL;
 }
-
 // convolute:  Applies a kernel matrix to an image
 // Parameters: srcImage: The image being convoluted
 //             destImage: A pointer to a  pre-allocated (including space for the pixel array) structure to receive the convoluted image.  It should be the same size as srcImage
@@ -177,7 +176,7 @@ int main(int argc, char **argv)
     {
         thread_data[i].srcImage = &srcImage;
         thread_data[i].destImage = &destImage;
-        thread_data[i].algorithm = algorithms[type];
+        thread_data[i].algorithm = &algorithms[type];
         thread_data[i].start_row = i * rows_per_thread;
         thread_data[i].end_row = (i == NUM_THREADS - 1) ? srcImage.height : (i + 1) * rows_per_thread;
 
